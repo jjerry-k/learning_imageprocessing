@@ -189,7 +189,7 @@ def gaussian_filter(x, sigma):
     '''
     x is odd
     '''
-    mid_point = int(x/2)
+    mid_point = np.uint8(x/2)
     out = np.zeros([x, x])
     for i in range(x):
         for j in range(x):
