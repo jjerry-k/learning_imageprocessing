@@ -178,3 +178,23 @@ def color_rev(img):
 def gamma_corr(img, gamma):
     return img.max() * (img/img.max())**gamma
     
+def gaussian_function(x, y, sigma):
+    
+    frac = 1/(2*np.pi*sigma**2)
+    expo = -(x**2 + y**2)/(2*sigma**2)
+    
+    return frac*np.exp(expo)
+
+def gaussian_filter(x, sigma):
+    '''
+    x is odd
+    '''
+    mid_point = int(x/2)
+    out = np.zeros([x, x])
+    for i in range(x):
+        for j in range(x):
+            out[i, j] = gaussian_function(j-mid_point, i-mid_point, sigma)
+            
+    return out
+    
+    
