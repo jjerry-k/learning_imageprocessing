@@ -1,4 +1,19 @@
 import numpy as np
+from matplotlib import pyplot as plt
+
+def my_imshow(img, c_map):
+    v_min = 0
+    if img.dtype == 'uint8':
+        v_max = 255
+    elif img.dtype == 'float64':
+        v_max = 1
+    plt.imshow(img, cmap = c_map, vmin=v_min, vmax=v_max)
+    
+def im2double(img):
+    _min = img.min()
+    _max = img.max()
+    
+    return (img - _min)/(_max-_min)
 
 
 def to_hist(img):
@@ -21,14 +36,15 @@ def hist_eq(img):
 
 
 def convolution(img, fil):
+    img = im2double(img)
     fil_h, fil_w = fil.shape
     p = int((fil.shape[0]-1)/2)
-    tmp_img = np.zeros(np.array(img.shape)+2*p)
-    tmp_img[p:-p, p:-p] = np.double(img)
-    out = np.zeros_like(img, float)
-    for i in range(tmp_img.shape[0]-fil.shape[0]+1):
-        for j in range(tmp_img.shape[1]-fil.shape[1]+1):
-            out[i, j]=np.sum(tmp_img[i:i+fil_h, j:j+fil_w]*fil)
+    tmp = np.zeros(np.array(img.shape)+2*p)
+    tmp[p:-p, p:-p] = img
+    out = np.zeros_like(img)
+    for i in range(tmp.shape[0]-fil_h+1):
+        for j in range(tmp.shape[1]-fil_w+1):
+            out[i, j]=np.sum(tmp[i:i+fil_h, j:j+fil_w]*fil)
     return out
 
 def box_fil(size):
@@ -88,9 +104,9 @@ def usNhb(img, ksize, sigma, k):
     fil = gaussian_filter(ksize, sigma)
     tmp = convolution(img, fil)
     g_mask = img - tmp
-    out = np.uint16(img) + (k*g_mask)
-    out[out>255] = 255
-    return np.uint8(out)
+    out = img + (k*g_mask)
+   
+    return out
 
 def roberts():
     out = np.zeros([2,3,3])
@@ -107,5 +123,5 @@ def sobel():
     tmp[1,:] = 0
     tmp[0,:] *=-1
     out[0] = tmp
-    out[1] = np.rot(tmp)
+    out[1] = np.rot90(tmp)
     return out
