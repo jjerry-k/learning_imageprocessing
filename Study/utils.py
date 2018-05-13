@@ -125,3 +125,52 @@ def sobel():
     out[0] = tmp
     out[1] = np.rot90(tmp)
     return out
+
+def binarize(img, T):
+    out = img.copy()
+    out[out<T] = 0
+    out[out>=T] = 1
+    return out
+    
+def w0_t(hist_hat, t):
+    return sum(hist_hat[:t+1]) + 1e-7
+
+def m0_t(hist_hat, t):
+    w0 = w0_t(hist_hat, t) 
+    _sum = []
+    for i in range(len(hist_hat[:t+1])):
+        _sum.append(i*hist_hat[i])
+    _sum = sum(_sum)
+    return _sum/w0
+
+def ostu(img):
+    tmp_img = img.copy()
+    L = img.max() + 1
+    _, hist_hat = to_hist(img)
+    
+    m = []
+    _sum=[]
+    for i in range(len(hist_hat)):
+        _sum.append(i*hist_hat[i])
+    m = sum(_sum)
+    
+    w0 = w0_t(hist_hat, 0)
+    m0 = m0_t(hist_hat, 0)
+    m1t = 0
+    v_b = []
+    for i in range(1, L):
+        w0t = w0 + hist_hat[i]
+        m0t = (w0*m0 + i*hist_hat[i])/w0t
+        m1t = (m - w0t*m0t)/(1-w0t)
+        v = w0t*(1-w0t)*(m0t-m1t)**2
+        v_b.append(v)
+        w0 = w0t
+        m0 = m0t
+        
+    th = v_b.index(max(v_b))
+    
+    tmp_img[tmp_img<th] = 0
+    tmp_img[tmp_img>=th] = 1
+    
+    return tmp_img, th
+
