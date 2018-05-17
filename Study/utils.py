@@ -174,3 +174,108 @@ def ostu(img):
     
     return tmp_img, th
 
+def bin_erosion(img, struct):
+    s_h, s_w = struct.shape
+    i_h, i_w = img.shape
+    p_h = int((s_h-1)/2)
+    p_w = int((s_w-1)/2)
+    new_img = np.zeros([i_h+s_h-1, i_w+s_w-1])
+    out = np.zeros_like(img)
+    if s_h == 1:
+        new_img[:, p_w:-p_w] = img.copy()
+    elif s_w ==1:
+        new_img[p_h:-p_h,:] = img.copy()
+    else:
+        new_img[p_h:-p_h, p_w:-p_w] = img.copy()
+        
+    for i in range(i_h):
+        for j in range(i_w):
+            tmp = new_img[i:i+s_h, j:j+s_w]*struct
+            tmp = np.sum(tmp)
+            if tmp == np.sum(struct):
+                out[i, j] = 1
+            else:
+                out[i, j] = 0
+    
+    return out
+    
+def bin_dilation(img, struct):
+    s_h, s_w = struct.shape
+    i_h, i_w = img.shape
+    p_h = int((s_h-1)/2)
+    p_w = int((s_w-1)/2)
+    new_img = np.zeros([i_h+s_h-1, i_w+s_w-1])
+    out = np.zeros_like(img)
+    if s_h == 1:
+        new_img[:, p_w:-p_w] = img.copy()
+    elif s_w ==1:
+        new_img[p_h:-p_h,:] = img.copy()
+    else:
+        new_img[p_h:-p_h, p_w:-p_w] = img.copy()
+        
+    for i in range(i_h):
+        for j in range(i_w):
+            tmp = new_img[i:i+s_h, j:j+s_w]*struct
+            tmp = np.sum(tmp)
+            if tmp == 0:
+                out[i, j] = 0
+            else:
+                out[i, j] = 1
+    
+    return out
+
+def bin_opening(img, struct):
+    tmp = bin_erosion(img, struct)
+    out = bin_dilation(tmp, struct)
+    return out
+
+def bin_closing(img, struct):
+    tmp = bin_dilation(img, struct)
+    out = bin_erosion(tmp, struct)
+    return out
+
+def bri_erosion(img, struct):
+    s_h, s_w = struct.shape
+    i_h, i_w = img.shape
+    p_h = int((s_h-1)/2)
+    p_w = int((s_w-1)/2)
+    new_img = np.zeros([i_h+s_h-1, i_w+s_w-1])
+    out = np.zeros_like(img)
+    if s_h == 1:
+        new_img[:, p_w:-p_w] = img.copy()
+    elif s_w ==1:
+        new_img[p_h:-p_h,:] = img.copy()
+    else:
+        new_img[p_h:-p_h, p_w:-p_w] = img.copy()
+        
+    for i in range(i_h):
+        for j in range(i_w):
+            tmp = new_img[i:i+s_h, j:j+s_w]*struct
+            tmp = np.reshape(tmp, [-1])
+            idx = np.nonzero(tmp)
+            out[i, j] = np.min(tmp[idx])
+    
+    return out
+    
+def bri_dilation(img, struct):
+    s_h, s_w = struct.shape
+    i_h, i_w = img.shape
+    p_h = int((s_h-1)/2)
+    p_w = int((s_w-1)/2)
+    new_img = np.zeros([i_h+s_h-1, i_w+s_w-1])
+    out = np.zeros_like(img)
+    if s_h == 1:
+        new_img[:, p_w:-p_w] = img.copy()
+    elif s_w ==1:
+        new_img[p_h:-p_h,:] = img.copy()
+    else:
+        new_img[p_h:-p_h, p_w:-p_w] = img.copy()
+        
+    for i in range(i_h):
+        for j in range(i_w):
+            tmp = new_img[i:i+s_h, j:j+s_w]*struct
+            tmp = np.reshape(tmp, [-1])
+            idx = np.nonzero(tmp)
+            out[i, j] = np.max(tmp[idx])
+    
+    return out
