@@ -6,8 +6,6 @@
 
 ## Contents
 
-### 0. Color space
-
 ### 1. Histogram
 - Calculation histogram
 - Histogram equalization
